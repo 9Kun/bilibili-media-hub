@@ -1,0 +1,8 @@
+# 下载功能必需依赖
+httpx>=0.25,<1.0
+
+# 转录功能可选依赖（仅在使用 transcribe_bilibili_media 时需要）
+# 安装命令：pip install funasr
+# 首次转录会自动下载 Paraformer-zh 模型到 ~/.cache/funasr（约 1.5GB）
+funasr>=1.0
+  
