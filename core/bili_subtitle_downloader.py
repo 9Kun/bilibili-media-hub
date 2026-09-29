@@ -116,10 +116,24 @@ class BiliSubtitleDownloader:
         headers = self.downloader._bili_api_headers(bvid)
         obj = self.downloader.http.get_json(url, headers, with_fingerprint_cookie=True)
 
+        if not isinstance(obj, dict):
+            raise CoreApiError(f"Invalid subtitle response for {bvid}/{cid}")
+        code = obj.get("code", 0)
+        if code != 0:
+            raise CoreApiError(
+                f"Subtitle query failed for {bvid}/{cid}: "
+                f"code={code}, message={obj.get('message', '')}"
+            )
+
         try:
             subtitles = obj["data"]["subtitle"]["subtitles"]
-        except (KeyError, TypeError):
-            raise NoSubtitleError(f"Subtitle field missing in response for {bvid}/{cid}")
+        except (KeyError, TypeError) as exc:
+            raise CoreApiError(
+                f"Subtitle field missing in response for {bvid}/{cid}"
+            ) from exc
+
+        if not isinstance(subtitles, list):
+            raise CoreApiError(f"Invalid subtitle list for {bvid}/{cid}")
 
         if not subtitles:
             raise NoSubtitleError(
